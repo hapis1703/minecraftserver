@@ -25,5 +25,11 @@ fi
 screen -S afk -d -m $HOME/.local/bin/bpytop
 
 echo ""
+echo "use [screen -ls] to check the Running Process"
 echo "use [screen -r playit] to see server ip"
 echo "use [screen -r server] to see server console"
+echo ""
+echo "> To stop your server, type './stop'"
+
+echo -e 'Checking if server has launched properly'
+bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/check)
