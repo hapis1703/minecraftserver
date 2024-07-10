@@ -61,7 +61,7 @@ echo "[5] Purpur Server"
 echo "[6] Pufferfish Server"
 echo "[7] Folia Server"
 echo ""
-echo "Type [1-2] Below"
+echo "Type [1-7] Below"
 SERVER_TYPE=1
 read SERVER_TYPE
 
