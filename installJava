@@ -1,0 +1,58 @@
+export THIS_DIR=$PWD
+
+install_server () {
+    choice=$1
+    if [[ -z $choice ]]
+    then
+        echo "> Invalid Response"
+        ./installJava
+    
+    elif [[ $choice == 1 ]]
+    then
+        echo "> Installing Vanilla..."
+        cd Java
+        chmod +x *
+        sudo dos2unix *
+        ./vanilla
+
+    elif [[ $choice == 2 ]]
+    then
+        echo "> Installing Paper..."
+        cd Java
+        chmod +x *
+        sudo dos2unix *
+        ./paper
+
+    else
+        echo "> Invalid Response"
+        ./installJava
+    fi
+}
+
+sudo apt install -y -qq screen neofetch
+
+echo ""
+echo "-- Pick the following Server type: --"
+echo "[1] Vanilla Server"
+echo "[2] Paper Server"
+echo "[3] Forge Server"
+echo "[4] Fabric Server"
+echo "[5] Purpur Server"
+echo ""
+echo "Type [1-2] Below"
+SERVER_TYPE=1
+read SERVER_TYPE
+
+install_server $SERVER_TYPE
+
+echo "> Installing Playit.gg..."
+cd ..
+
+curl -SsL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/playit.gpg >/dev/null
+echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.github.io/ppa/data ./" | sudo tee /etc/apt/sources.list.d/playit-cloud.list
+sudo apt update
+sudo apt install playit
+
+echo "> Playit.gg Installation Completed!"
+echo ""
+echo "> You can start the server by do ./start"

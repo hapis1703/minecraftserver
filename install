@@ -1,0 +1,28 @@
+chmod +x *
+echo "-- Minecraft Server Installer --"
+echo "[1] for Java Server"
+echo "[2] for Bedrock Server"
+echo "Type [1-2] Below"
+SERVER_TYPE=1
+read SERVER_TYPE
+
+echo "> Installing SDKMAN"
+curl -s "https://get.sdkman.io" | bash
+source "$HOME/.sdkman/bin/sdkman-init.sh"
+echo "> Installing Java From SDKMAN"
+sdk install java 22-open
+sdk default java 22-open
+
+if [[ $SERVER_TYPE == 1 ]]; then
+    ./installJava
+elif [[ $SERVER_TYPE == 2 ]]; then
+    ./installBedrock
+else
+    echo "Invalid Respond. Please Try again."
+    ./install
+fi
+
+echo "> Installing AFK Script"
+echo ""
+python3 -m pip install bpytop
+echo ""
