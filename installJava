@@ -52,6 +52,7 @@ sudo apt update
 sudo apt install -y -qq screen neofetch
 
 echo ""
+echo "(IMPORTANT!: We are using mcutils.com API, so the avaible version is not many)"
 echo "-- Pick the following Server type: --"
 echo "[1] Vanilla Server"
 echo "[2] Paper Server"
