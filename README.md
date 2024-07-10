@@ -75,7 +75,7 @@ screen -r server
 
 To completely stop the server, you can do `./stop` on the console or do `exit` or `stop` on the Minecraft console
 
-## Detachin Screen/Session
+## Detaching Screen/Session
 
 - To detach the screen you can do it using the following keyboard shortcut
   `CTRL + A` then press `D`
