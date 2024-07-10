@@ -7,7 +7,7 @@ if [[ ! -f eula.txt ]]; then
     echo "eula=true" > eula.txt
 fi
 
-if [[ -f bedrock_server]]; then
+if [[ -f bedrock_server ]]; then
     echo "Bedrock server found, starting it..."
     chmod +x bedrock_server
     ./bedrock_server
