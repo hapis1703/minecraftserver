@@ -5,6 +5,8 @@ echo "Type [1-2] Below"
 SERVER_TYPE=1
 read SERVER_TYPE
 
+sudo apt install dos2unix
+
 echo "> Installing SDKMAN"
 curl -s "https://get.sdkman.io" | bash
 source "$HOME/.sdkman/bin/sdkman-init.sh"
