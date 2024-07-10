@@ -124,7 +124,7 @@ Minecraft Bedrock Edition:
 
 - **Vanilla**
 
-_(We'll gonna add more server type in this project soon!)_
+_(We'll add more server type in this project soon!)_
 
 ## Restart the Server
 
