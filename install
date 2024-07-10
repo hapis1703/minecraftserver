@@ -14,12 +14,12 @@ sdk install java 22-open
 sdk default java 22-open
 
 if [[ $SERVER_TYPE == 1 ]]; then
-    ./installJava
+    bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/installJava)
 elif [[ $SERVER_TYPE == 2 ]]; then
-    ./installBedrock
+    bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/installBedrock)
 else
     echo "Invalid Respond. Please Try again."
-    ./install
+    bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/install)
 fi
 
 echo "> Installing AFK Script"

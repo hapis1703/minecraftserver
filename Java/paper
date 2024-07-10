@@ -1,10 +1,8 @@
 sudo apt update -qq
 sudo apt install -y -qq curl jq > /dev/null
 
-cd ..
 mkdir -p server
 cd server
-
 
 echo -e "\n> Enter minecraft version for server: "
 MINECRAFT_VERSION=latest

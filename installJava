@@ -10,22 +10,16 @@ install_server () {
     elif [[ $choice == 1 ]]
     then
         echo "> Installing Vanilla..."
-        cd Java
-        chmod +x *
-        sudo dos2unix *
-        ./vanilla
+        bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/Java/vanilla)
 
     elif [[ $choice == 2 ]]
     then
         echo "> Installing Paper..."
-        cd Java
-        chmod +x *
-        sudo dos2unix *
-        ./paper
+        bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/Java/paper)
 
     else
         echo "> Invalid Response"
-        ./installJava
+        bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/installJava)
     fi
 }
 
