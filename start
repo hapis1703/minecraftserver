@@ -10,10 +10,10 @@ fi
 if [[ -f bedrock_server ]]; then
     echo "Bedrock server found, starting it..."
     chmod +x bedrock_server
-    ./bedrock_server
+    screen -S server -d -m ./bedrock_server
 else
     echo "Java server found, starting it..."
-    java -Xmx${mem}G -Xms${mem}G -jar server.jar nogui
+    screen -S server -d -m java -Xmx${mem}G -Xms${mem}G -jar server.jar nogui
 fi
 
 screen -S playit -d -m playit

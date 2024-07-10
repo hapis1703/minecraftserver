@@ -21,6 +21,15 @@ else
     bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/install)
 fi
 
+cd server
+echo "> Installing Start and Stop Script"
+wget -q https://github.com/hapis1703/minecraftserver/raw/main/start -O start
+wget -q https://github.com/hapis1703/minecraftserver/raw/main/stop -O stop
+chmod +x start
+chmod +x stop
+sudo dos2unix start
+sudo dos2unix stop
+
 echo "> Installing AFK Script"
 echo ""
 python3 -m pip install bpytop
