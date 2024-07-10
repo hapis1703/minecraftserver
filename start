@@ -14,6 +14,7 @@ if [[ -f bedrock_server]]; then
 else
     echo "Java server found, starting it..."
     java -Xmx${mem}G -Xms${mem}G -jar server.jar nogui
+fi
 
 screen -S playit -d -m playit
 
