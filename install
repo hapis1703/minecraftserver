@@ -36,5 +36,3 @@ echo "> Installing AFK Script"
 echo ""
 python3 -m pip install bpytop
 echo ""
-
-cd server
