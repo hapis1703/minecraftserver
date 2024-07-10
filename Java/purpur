@@ -1,0 +1,42 @@
+sudo apt update -qq
+sudo apt install -y -qq curl jq > /dev/null
+
+mkdir -p server
+cd server
+
+echo -e "\n> Enter minecraft version for server: "
+MINECRAFT_VERSION=latest
+read MINECRAFT_VERSION
+
+PROJECT=purpur
+SERVER_JARFILE=server.jar
+MCUTILS_API=$(curl -s https://mcutils.com/api/server-jars/${PROJECT})
+
+VER_EXISTS=$(echo $MCUTILS_API | jq -r --arg VERSION ${MINECRAFT_VERSION} '.[] | select(.version == $VERSION)')
+LATEST_VERSION=$(echo $MCUTILS_API | jq -r '.[0].version')
+
+if [ -n "${VER_EXISTS}" ]; then
+    echo "Version $MINECRAFT_VERSION exists for project $PROJECT"
+else
+    echo "Version $MINECRAFT_VERSION does not exist for project $PROJECT"
+    echo "Using the latest version of $PROJECT"
+    MINECRAFT_VERSION=${LATEST_VERSION}
+fi
+
+JAR_NAME=${PROJECT}-${MINECRAFT_VERSION}.jar
+
+echo ""
+echo "Version being downloaded"
+echo -e "MC Version: ${MINECRAFT_VERSION}"
+echo -e "Build: latest"
+echo -e "JAR Name of Build: ${JAR_NAME}"
+echo ""
+DOWNLOAD_URL=https://mcutils.com/api/server-jars/${PROJECT}/${MINECRAFT_VERSION}/download
+
+echo -e "Running curl -o ${SERVER_JARFILE} ${DOWNLOAD_URL}"
+
+if [ -f ${SERVER_JARFILE} ]; then
+	mv ${SERVER_JARFILE} ${SERVER_JARFILE}.old
+fi
+
+wget -q ${DOWNLOAD_URL} -O ${SERVER_JARFILE}

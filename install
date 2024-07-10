@@ -1,4 +1,3 @@
-chmod +x *
 echo "-- Minecraft Server Installer --"
 echo "[1] for Java Server"
 echo "[2] for Bedrock Server"
