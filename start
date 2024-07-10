@@ -1,0 +1,24 @@
+mem=$(grep MemTotal /proc/meminfo | sed -e 's/MemTotal:[ ]*//' | sed -e 's/ kB//')
+mem=$(($mem/1024/1024))
+
+killall screen
+
+if [[ ! -f eula.txt ]]; then
+    echo "eula=true" > eula.txt
+fi
+
+if [[ -f bedrock_server]]; then
+    echo "Bedrock server found, starting it..."
+    chmod +x bedrock_server
+    ./bedrock_server
+else
+    echo "Java server found, starting it..."
+    java -Xmx${mem}G -Xms${mem}G -jar server.jar nogui
+
+screen -S playit -d -m playit
+
+if [[ ! -f $HOME/.local/bin/bpytop ]]; then
+    python3 -m pip install bpytop
+fi
+
+screen -S afk -d -m $HOME/.local/bin/bpytop

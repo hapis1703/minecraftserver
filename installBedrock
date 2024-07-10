@@ -53,3 +53,20 @@ cp -rf whitelist.json.bak whitelist.json
 chmod +x bedrock_server
 
 echo -e "Install Completed"
+
+wget -q https://github.com/hapis1703/minecraftserver/raw/main/start -O start
+wget -q https://github.com/hapis1703/minecraftserver/raw/main/stop -O stop
+chmod +x start
+chmod +x stop
+
+echo "> Installing Playit.gg..."
+cd ..
+
+curl -SsL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/playit.gpg >/dev/null
+echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.github.io/ppa/data ./" | sudo tee /etc/apt/sources.list.d/playit-cloud.list
+sudo apt update
+sudo apt install playit
+
+echo "> Playit.gg Installation Completed!"
+echo ""
+echo "> You can start the server by do ./start"
