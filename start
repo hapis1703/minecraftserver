@@ -23,3 +23,7 @@ if [[ ! -f $HOME/.local/bin/bpytop ]]; then
 fi
 
 screen -S afk -d -m $HOME/.local/bin/bpytop
+
+echo ""
+echo "use [screen -r playit] to see server ip"
+echo "use [screen -r server] to see server console"

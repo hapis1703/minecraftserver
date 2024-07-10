@@ -1,0 +1,9 @@
+sleep 10
+server=$(screen -ls | grep server)
+if [ -z "$server" ]; then
+    echo -e "oops, looks like your minecraft server crashed"
+    killall screen
+else
+    echo -e "server is running"
+fi
+exit
