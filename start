@@ -3,6 +3,14 @@ mem=$(($mem/1024/1024))
 
 killall screen
 
+if ! command -v screen &> /dev/null
+then
+    sudo apt install screen
+    curl -SsL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/playit.gpg >/dev/null
+    echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.github.io/ppa/data ./" | sudo tee /etc/apt/sources.list.d/playit-cloud.list
+    sudo apt update
+    sudo apt install playit
+
 if [[ ! -f eula.txt ]]; then
     echo "eula=true" > eula.txt
 fi
