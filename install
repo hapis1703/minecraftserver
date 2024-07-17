@@ -18,7 +18,7 @@ if [[ $SERVER_TYPE == 1 ]]; then
     bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/installJava)
     echo ""
     echo "> Do you want to Install Geyser (Cross-play)?"
-    echp "Type [Y/n]"
+    echo "Type [Y/n]"
     GEYSER=1
     read GEYSER
 
