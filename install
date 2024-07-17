@@ -16,6 +16,15 @@ sdk default java 22-open
 
 if [[ $SERVER_TYPE == 1 ]]; then
     bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/installJava)
+    echo ""
+    echo "> Do you want to Install Geyser (Cross-play)?"
+    echp "Type [Y/n]"
+    GEYSER=1
+    read GEYSER
+
+    if [[ $GEYSER == "Y" || $GEYSER == "y" ]]; then
+        bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/installGeyser)
+    fi
 elif [[ $SERVER_TYPE == 2 ]]; then
     bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/installBedrock)
 else
