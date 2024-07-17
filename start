@@ -10,6 +10,7 @@ then
     echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.github.io/ppa/data ./" | sudo tee /etc/apt/sources.list.d/playit-cloud.list
     sudo apt update
     sudo apt install playit
+fi
 
 if [[ ! -f eula.txt ]]; then
     echo "eula=true" > eula.txt
