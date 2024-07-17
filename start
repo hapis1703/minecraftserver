@@ -16,6 +16,13 @@ else
     screen -S server -d -m java -Xmx${mem}G -Xms${mem}G -jar server.jar nogui
 fi
 
+if [[ -f geyser/geyser.jar ]]; then
+    echo "Geyser found, starting it..."
+    cd geyser
+    screen -S geyser -d -m java -Xmx${mem}G -Xms${mem}G -jar geyser.jar nogui
+    cd ..
+fi
+
 screen -S playit -d -m playit
 
 if [[ ! -f $HOME/.local/bin/bpytop ]]; then
