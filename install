@@ -8,11 +8,11 @@ read SERVER_TYPE
 sudo apt install dos2unix
 
 echo "> Installing SDKMAN"
-curl -s "https://get.sdkman.io" | bash
-source "$HOME/.sdkman/bin/sdkman-init.sh"
+curl -s "https://get.sdkman.io" | bash > /dev/null 2>&1
+source "$HOME/.sdkman/bin/sdkman-init.sh" > /dev/null 2>&1
 echo "> Installing Java From SDKMAN"
-sdk install java 21.0.2-open
-sdk default java 21.0.2-open
+sdk install java 21.0.2-open > /dev/null 2>&1
+sdk default java 21.0.2-open > /dev/null 2>&1
 
 if [[ $SERVER_TYPE == 1 ]]; then
     bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/installJava)
@@ -34,14 +34,14 @@ fi
 
 cd server
 echo "> Installing Start and Stop Script"
-wget -q https://github.com/hapis1703/minecraftserver/raw/main/start -O start
-wget -q https://github.com/hapis1703/minecraftserver/raw/main/stop -O stop
-chmod +x start
-chmod +x stop
-sudo dos2unix start
-sudo dos2unix stop
+wget -q https://github.com/hapis1703/minecraftserver/raw/main/start -O start > /dev/null 2>&1
+wget -q https://github.com/hapis1703/minecraftserver/raw/main/stop -O stop > /dev/null 2>&1
+chmod +x start > /dev/null 2>&1
+chmod +x stop > /dev/null 2>&1
+sudo dos2unix start > /dev/null 2>&1
+sudo dos2unix stop > /dev/null 2>&1
 
 echo "> Installing AFK Script"
 echo ""
-python3 -m pip install bpytop
+python3 -m pip install bpytop > /dev/null 2>&1
 echo ""
