@@ -17,52 +17,22 @@ install_server () {
         echo "> Installing Paper..."
         bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/Java/paper)
 
-    elif [[ $choice == 3 ]]
-    then
-        echo "> Installing Forge..."
-        bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/Java/forge)
-
-    elif [[ $choice == 4 ]]
-    then
-        echo "> Installing Fabric..."
-        bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/Java/fabric)
-
-    elif [[ $choice == 5 ]]
-    then
-        echo "> Installing Purpur..."
-        bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/Java/purpur)
-
-    elif [[ $choice == 6 ]]
-    then
-        echo "> Installing Pufferfish..."
-        bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/Java/pufferfish)
-
-    elif [[ $choice == 7 ]]
-    then
-        echo "> Installing Folia..."
-        bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/Java/folia)
-
     else
         echo "> Invalid Response"
         bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/installJava)
     fi
 }
 
-sudo apt update
-sudo apt install -y -qq screen neofetch
+sudo apt update > /dev/null 2>&1
+sudo apt install -y -qq screen neofetch > /dev/null 2>&1
 
 echo ""
 echo "(IMPORTANT!: We are using mcutils.com API, so the avaible version is not many)"
 echo "-- Pick the following Server type: --"
 echo "[1] Vanilla Server"
 echo "[2] Paper Server"
-echo "[3] Forge Server"
-echo "[4] Fabric Server"
-echo "[5] Purpur Server"
-echo "[6] Pufferfish Server"
-echo "[7] Folia Server"
 echo ""
-echo "Type [1-7] Below"
+echo "Type [1-2] Below"
 SERVER_TYPE=1
 read SERVER_TYPE
 
@@ -71,10 +41,10 @@ install_server $SERVER_TYPE
 echo "> Installing Playit.gg..."
 cd ..
 
-curl -SsL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/playit.gpg >/dev/null
-echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.github.io/ppa/data ./" | sudo tee /etc/apt/sources.list.d/playit-cloud.list
-sudo apt update
-sudo apt install playit
+curl -SsL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/playit.gpg >/dev/null 2>&1
+echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.github.io/ppa/data ./" | sudo tee /etc/apt/sources.list.d/playit-cloud.list > /dev/null 2>&1
+sudo apt update > /dev/null 2>&1
+sudo apt install playit > /dev/null 2>&1
 
 echo "> Playit.gg Installation Completed!"
 echo ""
