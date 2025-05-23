@@ -22,6 +22,11 @@ if [[ -f bedrock_server ]]; then
     screen -S server -d -m ./bedrock_server
 else
     echo "Java server found, starting it..."
+    echo "> Verifying SDKMAN"
+    curl -s "https://get.sdkman.io" | bash
+    source "$HOME/.sdkman/bin/sdkman-init.sh"
+    sdk install java 21.0.2-open
+    sdk default java 21.0.2-open
     screen -S server -d -m java -Xmx${mem}G -Xms${mem}G -jar server.jar nogui
 fi
 
