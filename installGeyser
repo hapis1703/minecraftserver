@@ -11,13 +11,13 @@ if [[ $GEYSER_TYPE == 2 ]]; then
     echo "> Installing Geyser Plugins"
     mkdir -p plugins
     cd plugins
-    wget -q https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/spigot -O geyser.jar
+    wget -q https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/spigot -O geyser.jar > /dev/null 2>&1
     cd ..
 else 
     echo "> Installing Geyser Standalone Version"
     mkdir -p geyser
     cd geyser
-    wget -q https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/standalone -O geyser.jar
+    wget -q https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/standalone -O geyser.jar > /dev/null 2>&1
     cd ..
 fi
 
