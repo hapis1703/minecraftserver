@@ -23,8 +23,8 @@ install_server () {
     fi
 }
 
-sudo apt update > /dev/null 2>&1
-sudo apt install -y -qq screen neofetch > /dev/null 2>&1
+sudo apt update
+sudo apt install -y -qq screen neofetch
 
 echo ""
 echo "(IMPORTANT!: We are using mcutils.com API, so the avaible version is not many)"
@@ -41,10 +41,10 @@ install_server $SERVER_TYPE
 echo "> Installing Playit.gg..."
 cd ..
 
-curl -SsL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/playit.gpg >/dev/null 2>&1
-echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.github.io/ppa/data ./" | sudo tee /etc/apt/sources.list.d/playit-cloud.list > /dev/null 2>&1
-sudo apt update > /dev/null 2>&1
-sudo apt install playit > /dev/null 2>&1
+curl -SsL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/playit.gpg
+echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.github.io/ppa/data ./" | sudo tee /etc/apt/sources.list.d/playit-cloud.list
+sudo apt update
+sudo apt install playit
 
 echo "> Playit.gg Installation Completed!"
 echo ""
