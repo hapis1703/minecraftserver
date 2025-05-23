@@ -2,8 +2,8 @@ sudo apt install -qq screen neofetch wget unzip -y
 
 #!/bin/bash
 
-sudo apt update -qq
-sudo apt install -y -qq zip unzip wget curl
+sudo apt update -qq > /dev/null 2>&1
+sudo apt install -y -qq zip unzip wget curl > /dev/null 2>&1
 
 mkdir -p server
 cd server
