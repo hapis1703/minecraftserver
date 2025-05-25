@@ -4,9 +4,9 @@ In this project, we'll teach you host your very own Java/Bedrock Minecraft Serve
 
 **The following features are added into this project are:**
 
-- Supports many type of Java Servers (Base on https://mcutils.com API)
+- Only support Vanilla & Paper (Based on https://mcutils.com API)
 - Clean & Friendly Interface
-- Support with Vanilla Bedrock Server
+- Support with Vanilla Bedrock Server (Latest Version)
 - Added Server Management
 - Easy to use (Easier functional scripts)
 - Instant EULA script setup _(Completely skipping this part whice makes it easier)_
@@ -112,12 +112,7 @@ If you want to access your server files, go to `Open Editor` on the top right.
 
 Minecraft Java Edition:
 
-- **Fabric**
-- **Folia**
-- **Forge**
 - **Paper**
-- **Pufferfish**
-- **Purpur**
 - **Vanilla**
 
 Minecraft Bedrock Edition:
