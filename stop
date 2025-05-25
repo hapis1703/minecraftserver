@@ -1,1 +1,1 @@
-killall screen
+bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/stopScript)

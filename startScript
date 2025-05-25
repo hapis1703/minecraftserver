@@ -1,0 +1,56 @@
+mem=$(grep MemTotal /proc/meminfo | sed -e 's/MemTotal:[ ]*//' | sed -e 's/ kB//')
+mem=$(($mem/1024/1024))
+
+killall screen
+
+if ! command -v screen &> /dev/null
+then
+    sudo apt install screen
+    curl -SsL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/playit.gpg >/dev/null
+    echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.github.io/ppa/data ./" | sudo tee /etc/apt/sources.list.d/playit-cloud.list
+    sudo apt update
+    sudo apt install playit
+fi
+
+if [[ ! -f eula.txt ]]; then
+    echo "eula=true" > eula.txt
+fi
+
+if [[ -f bedrock_server ]]; then
+    echo "Bedrock server found, starting it..."
+    chmod +x bedrock_server
+    screen -S server -d -m ./bedrock_server
+else
+    echo "Java server found, starting it..."
+    echo "> Verifying SDKMAN"
+    curl -s "https://get.sdkman.io" | bash
+    source "$HOME/.sdkman/bin/sdkman-init.sh"
+    sdk install java 21.0.2-open
+    sdk default java 21.0.2-open
+    screen -S server -d -m java -Xmx${mem}G -Xms${mem}G -jar server.jar nogui
+fi
+
+if [[ -f geyser/geyser.jar ]]; then
+    echo "Geyser found, starting it..."
+    cd geyser
+    screen -S geyser -d -m java -Xmx${mem}G -Xms${mem}G -jar geyser.jar nogui
+    cd ..
+fi
+
+screen -S playit -d -m playit
+
+if [[ ! -f $HOME/.local/bin/bpytop ]]; then
+    python3 -m pip install bpytop
+fi
+
+screen -S afk -d -m $HOME/.local/bin/bpytop
+
+echo ""
+echo "use [screen -ls] to check the Running Process"
+echo "use [screen -r playit] to see server ip"
+echo "use [screen -r server] to see server console"
+echo ""
+echo "> To stop your server, type './stop'"
+
+echo -e 'Checking if server has launched properly'
+bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/check)
