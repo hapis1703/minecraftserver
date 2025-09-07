@@ -1,8 +1,6 @@
 mem=$(grep MemTotal /proc/meminfo | sed -e 's/MemTotal:[ ]*//' | sed -e 's/ kB//')
 mem=$(($mem/1024/1024))
 
-killall screen
-
 if ! command -v screen &> /dev/null
 then
     sudo apt install screen
