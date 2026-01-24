@@ -1,9 +1,19 @@
+#!/bin/bash
+
 sleep 10
-server=$(screen -ls | grep server)
-if [ -z "$server" ]; then
-    echo -e "oops, looks like your minecraft server crashed"
-    killall screen
+
+GREEN="\e[32m"
+RED="\e[31m"
+CYAN="\e[36m"
+RESET="\e[0m"
+
+SERVER_SESSION=$(screen -ls | grep -w server)
+
+if [[ -z "$SERVER_SESSION" ]]; then
+    echo -e "${RED}✖ Server is not running (crashed or stopped)${RESET}"
+    killall screen >/dev/null 2>&1
 else
-    echo -e "server is running"
+    echo -e "${GREEN}✔ Server is running${RESET}"
 fi
-exit
+
+exit 0

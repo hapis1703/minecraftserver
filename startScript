@@ -1,54 +1,88 @@
-mem=$(grep MemTotal /proc/meminfo | sed -e 's/MemTotal:[ ]*//' | sed -e 's/ kB//')
-mem=$(($mem/1024/1024))
+#!/bin/bash
 
-if ! command -v screen &> /dev/null
-then
-    sudo apt install screen
-    curl -SsL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/playit.gpg >/dev/null
-    echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.github.io/ppa/data ./" | sudo tee /etc/apt/sources.list.d/playit-cloud.list
-    sudo apt update
-    sudo apt install playit
+set -e
+export DEBIAN_FRONTEND=noninteractive
+
+# ===== COLORS =====
+GREEN="\e[32m"
+CYAN="\e[36m"
+YELLOW="\e[33m"
+RED="\e[31m"
+RESET="\e[0m"
+
+# ===== MEMORY (GB) =====
+MEM_GB=$(awk '/MemTotal/ {printf "%.0f", $2/1024/1024}' /proc/meminfo)
+
+# ===== DEPENDENCIES =====
+if ! command -v screen &>/dev/null; then
+    echo -e "${CYAN}> Installing required packages...${RESET}"
+    sudo apt update -qq
+    sudo apt install -y -qq screen curl gnupg python3-pip
+
+    curl -fsSL https://playit-cloud.github.io/ppa/key.gpg \
+        | gpg --dearmor \
+        | sudo tee /etc/apt/trusted.gpg.d/playit.gpg >/dev/null
+
+    echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.github.io/ppa/data ./" \
+        | sudo tee /etc/apt/sources.list.d/playit-cloud.list >/dev/null
+
+    sudo apt update -qq
+    sudo apt install -y -qq playit
 fi
 
-if [[ ! -f eula.txt ]]; then
-    echo "eula=true" > eula.txt
-fi
+# ===== EULA =====
+[[ -f eula.txt ]] || echo "eula=true" > eula.txt
 
+# ===== START SERVER =====
 if [[ -f bedrock_server ]]; then
-    echo "Bedrock server found, starting it..."
+    echo -e "${GREEN}> Bedrock server detected, starting...${RESET}"
     chmod +x bedrock_server
     screen -S server -d -m ./bedrock_server
 else
-    echo "Java server found, starting it..."
-    echo "> Verifying SDKMAN"
-    curl -s "https://get.sdkman.io" | bash
-    source "$HOME/.sdkman/bin/sdkman-init.sh"
-    sdk install java 21.0.2-open
-    sdk default java 21.0.2-open
-    screen -S server -d -m java -Xmx${mem}G -Xms${mem}G -jar server.jar nogui
+    echo -e "${GREEN}> Java server detected, starting...${RESET}"
+
+    if ! command -v java &>/dev/null; then
+        echo -e "${CYAN}> Installing Java 21 (SDKMAN)...${RESET}"
+        curl -s https://get.sdkman.io | bash >/dev/null
+        source "$HOME/.sdkman/bin/sdkman-init.sh"
+        sdk install java 21.0.2-open >/dev/null
+        sdk default java 21.0.2-open >/dev/null
+    fi
+
+    screen -S server -d -m \
+        java -Xms${MEM_GB}G -Xmx${MEM_GB}G -jar server.jar nogui
 fi
 
+# ===== GEYSER =====
 if [[ -f geyser/geyser.jar ]]; then
-    echo "Geyser found, starting it..."
-    cd geyser
-    screen -S geyser -d -m java -Xmx${mem}G -Xms${mem}G -jar geyser.jar nogui
-    cd ..
+    echo -e "${GREEN}> Geyser detected, starting...${RESET}"
+    (
+        cd geyser
+        screen -S geyser -d -m \
+            java -Xms${MEM_GB}G -Xmx${MEM_GB}G -jar geyser.jar nogui
+    )
 fi
 
+# ===== PLAYIT =====
 screen -S playit -d -m playit
 
-if [[ ! -f $HOME/.local/bin/bpytop ]]; then
-    python3 -m pip install bpytop
+# ===== AFK MONITOR =====
+if [[ ! -x "$HOME/.local/bin/bpytop" ]]; then
+    python3 -m pip install -q bpytop
 fi
 
-screen -S afk -d -m $HOME/.local/bin/bpytop
+screen -S afk -d -m "$HOME/.local/bin/bpytop"
 
+# ===== INFO =====
 echo ""
-echo "use [screen -ls] to check the Running Process"
-echo "use [screen -r playit] to see server ip"
-echo "use [screen -r server] to see server console"
+echo -e "${CYAN}Useful commands:${RESET}"
+echo "  screen -ls            → List running sessions"
+echo "  screen -r server      → Server console"
+echo "  screen -r playit      → Playit tunnel"
 echo ""
-echo "> To stop your server, type './stop'"
+echo -e "${YELLOW}To stop the server: ./stop${RESET}"
+echo ""
 
-echo -e 'Checking if server has launched properly'
+# ===== HEALTH CHECK =====
+echo -e "${CYAN}> Verifying server startup...${RESET}"
 bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/check)
