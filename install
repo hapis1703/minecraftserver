@@ -81,3 +81,22 @@ echo ""
 echo -e "${GREEN}✔ Installation completed successfully!${RESET}"
 echo -e "${CYAN}Use ./start to run the server${RESET}"
 echo ""
+
+# ===== WEB PANEL TOOLS =====
+echo -e "${CYAN}> Installing web panel tools...${RESET}"
+
+sudo apt install -y -qq ttyd nginx
+
+# ----- Filebrowser -----
+if ! command -v filebrowser &>/dev/null; then
+    curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh | bash >/dev/null
+    sudo mv filebrowser /usr/local/bin/filebrowser
+fi
+
+# ----- Filebrowser config -----
+if [[ ! -f "$HOME/.filebrowser.json" ]]; then
+    filebrowser config init >/dev/null
+    filebrowser users add admin admin --perm.admin >/dev/null
+fi
+
+echo -e "${GREEN}> Web panel installed${RESET}"

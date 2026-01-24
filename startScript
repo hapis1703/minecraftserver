@@ -3,29 +3,44 @@
 set -e
 export DEBIAN_FRONTEND=noninteractive
 
-# ===== COLORS =====
 GREEN="\e[32m"
 CYAN="\e[36m"
 YELLOW="\e[33m"
 RED="\e[31m"
 RESET="\e[0m"
 
-# ===== MEMORY (GB) =====
 MEM_GB=$(awk '/MemTotal/ {printf "%.0f", $2/1024/1024}' /proc/meminfo)
 
-# ===== DEPENDENCIES =====
-if ! command -v screen &>/dev/null; then
-    echo -e "${CYAN}> Installing required packages...${RESET}"
-    sudo apt update -qq
-    sudo apt install -y -qq screen curl gnupg python3-pip
+# ===== ENSURE DEPENDENCIES =====
+ensure_cmd () {
+    if ! command -v "$1" &>/dev/null; then
+        echo -e "${CYAN}> Installing $1...${RESET}"
+        sudo apt update -qq
+        sudo apt install -y -qq "$1"
+    fi
+}
 
+ensure_cmd screen
+ensure_cmd curl
+ensure_cmd ttyd
+
+# ===== FILEBROWSER =====
+if ! command -v filebrowser &>/dev/null; then
+    echo -e "${CYAN}> Installing filebrowser...${RESET}"
+    curl -fsSL https://raw.githubusercontent.com/filebrowser/get/master/get.sh | bash >/dev/null
+    sudo mv filebrowser /usr/local/bin/filebrowser
+    filebrowser config init >/dev/null
+    filebrowser users add admin admin --perm.admin >/dev/null
+fi
+
+# ===== PLAYIT =====
+if ! command -v playit &>/dev/null; then
+    echo -e "${CYAN}> Installing Playit.gg...${RESET}"
     curl -fsSL https://playit-cloud.github.io/ppa/key.gpg \
         | gpg --dearmor \
         | sudo tee /etc/apt/trusted.gpg.d/playit.gpg >/dev/null
-
     echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.github.io/ppa/data ./" \
         | sudo tee /etc/apt/sources.list.d/playit-cloud.list >/dev/null
-
     sudo apt update -qq
     sudo apt install -y -qq playit
 fi
@@ -35,54 +50,56 @@ fi
 
 # ===== START SERVER =====
 if [[ -f bedrock_server ]]; then
-    echo -e "${GREEN}> Bedrock server detected, starting...${RESET}"
+    echo -e "${GREEN}> Starting Bedrock server...${RESET}"
     chmod +x bedrock_server
-    screen -S server -d -m ./bedrock_server
+    screen -S server -dm ./bedrock_server
 else
-    echo -e "${GREEN}> Java server detected, starting...${RESET}"
-
+    echo -e "${GREEN}> Starting Java server...${RESET}"
     if ! command -v java &>/dev/null; then
-        echo -e "${CYAN}> Installing Java 21 (SDKMAN)...${RESET}"
         curl -s https://get.sdkman.io | bash >/dev/null
         source "$HOME/.sdkman/bin/sdkman-init.sh"
         sdk install java 21.0.2-open >/dev/null
         sdk default java 21.0.2-open >/dev/null
     fi
-
-    screen -S server -d -m \
-        java -Xms${MEM_GB}G -Xmx${MEM_GB}G -jar server.jar nogui
+    screen -S server -dm java -Xms${MEM_GB}G -Xmx${MEM_GB}G -jar server.jar nogui
 fi
 
 # ===== GEYSER =====
 if [[ -f geyser/geyser.jar ]]; then
-    echo -e "${GREEN}> Geyser detected, starting...${RESET}"
-    (
-        cd geyser
-        screen -S geyser -d -m \
-            java -Xms${MEM_GB}G -Xmx${MEM_GB}G -jar geyser.jar nogui
-    )
+    echo -e "${GREEN}> Starting Geyser...${RESET}"
+    (cd geyser && screen -S geyser -dm java -Xms2G -Xmx2G -jar geyser.jar nogui)
 fi
 
 # ===== PLAYIT =====
-screen -S playit -d -m playit
+screen -S playit -dm playit
 
-# ===== AFK MONITOR =====
-if [[ ! -x "$HOME/.local/bin/bpytop" ]]; then
-    python3 -m pip install -q bpytop
+# ===== WEB PANEL =====
+echo -e "${CYAN}> Starting web panel...${RESET}"
+
+screen -S web_server -dm ttyd -p 7681 screen -r server
+screen -S web_playit -dm ttyd -p 7683 screen -r playit
+
+if screen -ls | grep -q geyser; then
+    screen -S web_geyser -dm ttyd -p 7682 screen -r geyser
 fi
 
-screen -S afk -d -m "$HOME/.local/bin/bpytop"
+screen -S web_files -dm filebrowser -r "$PWD" -p 7684
 
 # ===== INFO =====
 echo ""
-echo -e "${CYAN}Useful commands:${RESET}"
-echo "  screen -ls            → List running sessions"
-echo "  screen -r server      → Server console"
-echo "  screen -r playit      → Playit tunnel"
+echo -e "${GREEN}✔ Server & Web Panel Started${RESET}"
 echo ""
-echo -e "${YELLOW}To stop the server: ./stop${RESET}"
+echo "Web Panel:"
+echo "  Console   → http://IP:7681"
+echo "  Geyser    → http://IP:7682"
+echo "  Playit    → http://IP:7683"
+echo "  Files     → http://IP:7684"
+echo ""
+echo "Login File Manager:"
+echo "  user: admin"
+echo "  pass: admin"
+echo ""
+echo -e "${YELLOW}Stop server: ./stop${RESET}"
 echo ""
 
-# ===== HEALTH CHECK =====
-echo -e "${CYAN}> Verifying server startup...${RESET}"
 bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/check)
