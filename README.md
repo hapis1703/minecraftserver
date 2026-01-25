@@ -32,7 +32,7 @@ In this project, we'll teach you host your very own Java/Bedrock Minecraft Serve
 
 ## Installation
 
-- Activate a [Google Cloud Shell](https://cloud.google.com/shell)
+- Activate a [Google Cloud Shell](https://console.cloud.google.com/)
 - Run Installation Script:
 
 ```
