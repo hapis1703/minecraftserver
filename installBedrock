@@ -1,67 +1,77 @@
-sudo apt install -qq screen neofetch wget unzip -y 
-
 #!/bin/bash
+set -e
 
-sudo apt update -qq > /dev/null 2>&1
-sudo apt install -y -qq zip unzip wget curl > /dev/null 2>&1
+sudo apt update -qq >/dev/null 2>&1
+sudo apt install -y -qq screen wget unzip curl >/dev/null 2>&1
 
 mkdir -p server
 cd server
 
-BEDROCK_VERSION=latest 
-LD_LIBRARY_PATH=. 
-SERVERNAME=Bedrock Dedicated Server
-GAMEMODE=survival
-DIFFICULTY=easy
-CHEATS=false
+echo ""
+echo "======================================"
+echo "   Bedrock Dedicated Server Installer"
+echo "======================================"
+echo ""
 
+# ===== FETCH VERSION LIST =====
+echo "> Fetching available Bedrock versions..."
 
-RANDVERSION=$(echo $((1 + $RANDOM % 4000)))
+curl -s https://minecraft.wiki/w/Bedrock_Dedicated_Server \
+| grep -o 'https://www.minecraft.net/bedrockdedicatedserver/bin-linux/bedrock-server-[0-9\.]*\.zip' \
+| grep -v -i preview \
+| sort -Vr \
+| uniq > versions.txt
 
-if [ -z "${BEDROCK_VERSION}" ] || [ "${BEDROCK_VERSION}" == "latest" ]; then
-    echo -e "\n Downloading latest Bedrock server"
-    curl -L https://minecraft.wiki/w/Bedrock_Dedicated_Server -H "Accept-Language: en" -H "Accept-Encoding: gzip, deflate" -o versions.html.gz https://minecraft.wiki/w/Bedrock_Dedicated_Server
-    DOWNLOAD_URL=$(zgrep -o 'https://www.minecraft.net/bedrockdedicatedserver/bin-linux/[^"]*' versions.html.gz)
-else 
-    echo -e "\n Downloading ${BEDROCK_VERSION} Bedrock server"
-    DOWNLOAD_URL=https://www.minecraft.net/bedrockdedicatedserver/bin-linux/bedrock-server-$BEDROCK_VERSION.zip
+TOTAL=$(wc -l < versions.txt)
+
+if [[ "$TOTAL" -eq 0 ]]; then
+    echo "❌ Failed to fetch versions"
+    exit 1
 fi
 
-DOWNLOAD_FILE=$(echo ${DOWNLOAD_URL} | cut -d"/" -f5)
+echo ""
+echo "Available Versions:"
+echo "-------------------"
 
-echo -e "backing up config files"
-rm *.bak versions.html.gz
-cp server.properties server.properties.bak
-cp permissions.json permissions.json.bak
-cp whitelist.json whitelist.json.bak
+nl -w2 -s". " versions.txt | sed 's#.*/bedrock-server-##' | sed 's/.zip//'
 
-echo -e "Downloading files from: $DOWNLOAD_URL"
+echo ""
+read -rp "Select version [1-$TOTAL]: " CHOICE
 
-curl -L -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.$RANDVERSION.212 Safari/537.36" -H "Accept-Language: en" -o $DOWNLOAD_FILE $DOWNLOAD_URL
+if ! [[ "$CHOICE" =~ ^[0-9]+$ ]] || (( CHOICE < 1 || CHOICE > TOTAL )); then
+    echo "❌ Invalid selection"
+    exit 1
+fi
 
-echo -e "Unpacking server files"
-unzip -o $DOWNLOAD_FILE
+DOWNLOAD_URL=$(sed -n "${CHOICE}p" versions.txt)
+DOWNLOAD_FILE=$(basename "$DOWNLOAD_URL")
 
-echo -e "Cleaning up after installing"
-rm $DOWNLOAD_FILE
+echo ""
+echo "> Selected version: ${DOWNLOAD_FILE%.zip}"
+echo "> Downloading server..."
 
-echo -e "restoring backup config files - on first install there will be file not found errors which you can ignore."
-cp -rf server.properties.bak server.properties
-cp -rf permissions.json.bak permissions.json
-cp -rf whitelist.json.bak whitelist.json
+# ===== BACKUP CONFIGS =====
+for f in server.properties permissions.json whitelist.json; do
+    [[ -f "$f" ]] && cp "$f" "$f.bak"
+done
+
+# ===== DOWNLOAD & INSTALL =====
+wget -q "$DOWNLOAD_URL" -O "$DOWNLOAD_FILE"
+
+echo "> Extracting..."
+unzip -oq "$DOWNLOAD_FILE"
+rm "$DOWNLOAD_FILE"
+
+# ===== RESTORE CONFIGS =====
+for f in server.properties permissions.json whitelist.json; do
+    [[ -f "$f.bak" ]] && mv "$f.bak" "$f"
+done
 
 chmod +x bedrock_server
+rm -f versions.txt
 
-echo -e "Install Completed"
-
-echo "> Installing Playit.gg..."
-cd ..
-
-curl -SsL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/playit.gpg >/dev/null
-echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.github.io/ppa/data ./" | sudo tee /etc/apt/sources.list.d/playit-cloud.list
-sudo apt update
-sudo apt install playit
-
-echo "> Playit.gg Installation Completed!"
 echo ""
-echo "> You can start the server by do ./start"
+echo "✅ Bedrock Server Installed Successfully!"
+echo ""
+echo "> Run ./start to launch the server"
+echo ""
