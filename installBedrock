@@ -1,106 +1,67 @@
+sudo apt install -qq screen neofetch wget unzip -y 
+
 #!/bin/bash
 
-set -e
-export DEBIAN_FRONTEND=noninteractive
+sudo apt update -qq > /dev/null 2>&1
+sudo apt install -y -qq zip unzip wget curl > /dev/null 2>&1
 
-# ===== COLORS =====
-GREEN="\e[32m"
-CYAN="\e[36m"
-YELLOW="\e[33m"
-RED="\e[31m"
-RESET="\e[0m"
-
-clear
-echo -e "${CYAN}"
-echo "======================================"
-echo "   Minecraft Bedrock Server Installer"
-echo "======================================"
-echo -e "${RESET}"
-
-# ===== SYSTEM UPDATE =====
-echo -e "${CYAN}> Updating system...${RESET}"
-sudo apt update -qq
-sudo apt upgrade -y -qq
-
-echo -e "${CYAN}> Installing dependencies...${RESET}"
-sudo apt install -y -qq screen neofetch wget unzip zip curl gnupg
-
-# ===== SETUP DIRECTORY =====
-echo -e "${CYAN}> Preparing server directory...${RESET}"
 mkdir -p server
 cd server
 
-# ===== CONFIG =====
-BEDROCK_VERSION="latest"
-LD_LIBRARY_PATH=.
-SERVERNAME="Bedrock Dedicated Server"
-GAMEMODE="survival"
-DIFFICULTY="easy"
+BEDROCK_VERSION=latest 
+LD_LIBRARY_PATH=. 
+SERVERNAME=Bedrock Dedicated Server
+GAMEMODE=survival
+DIFFICULTY=easy
 CHEATS=false
 
-RANDVERSION=$((1 + RANDOM % 4000))
 
-# ===== DOWNLOAD =====
-if [[ -z "$BEDROCK_VERSION" || "$BEDROCK_VERSION" == "latest" ]]; then
-    echo -e "${GREEN}> Downloading latest Bedrock server...${RESET}"
-    curl -fsSL \
-        -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Chrome/90.0.$RANDVERSION.212" \
-        -H "Accept-Language: en" \
-        -o versions.html.gz \
-        https://www.minecraft.net/en-us/download/server/bedrock
+RANDVERSION=$(echo $((1 + $RANDOM % 4000)))
 
+if [ -z "${BEDROCK_VERSION}" ] || [ "${BEDROCK_VERSION}" == "latest" ]; then
+    echo -e "\n Downloading latest Bedrock server"
+    curl -L -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.$RANDVERSION.212 Safari/537.36" -H "Accept-Language: en" -H "Accept-Encoding: gzip, deflate" -o versions.html.gz https://www.minecraft.net/en-us/download/server/bedrock
     DOWNLOAD_URL=$(zgrep -o 'https://www.minecraft.net/bedrockdedicatedserver/bin-linux/[^"]*' versions.html.gz)
-else
-    echo -e "${GREEN}> Downloading Bedrock $BEDROCK_VERSION...${RESET}"
-    DOWNLOAD_URL="https://www.minecraft.net/bedrockdedicatedserver/bin-linux/bedrock-server-$BEDROCK_VERSION.zip"
+else 
+    echo -e "\n Downloading ${BEDROCK_VERSION} Bedrock server"
+    DOWNLOAD_URL=https://www.minecraft.net/bedrockdedicatedserver/bin-linux/bedrock-server-$BEDROCK_VERSION.zip
 fi
 
-DOWNLOAD_FILE=$(basename "$DOWNLOAD_URL")
+DOWNLOAD_FILE=$(echo ${DOWNLOAD_URL} | cut -d"/" -f5)
 
-# ===== BACKUP CONFIG =====
-echo -e "${CYAN}> Backing up config files...${RESET}"
-rm -f *.bak versions.html.gz
-cp -f server.properties server.properties.bak 2>/dev/null || true
-cp -f permissions.json permissions.json.bak 2>/dev/null || true
-cp -f whitelist.json whitelist.json.bak 2>/dev/null || true
+echo -e "backing up config files"
+rm *.bak versions.html.gz
+cp server.properties server.properties.bak
+cp permissions.json permissions.json.bak
+cp whitelist.json whitelist.json.bak
 
-# ===== INSTALL =====
-echo -e "${CYAN}> Downloading server files...${RESET}"
-curl -fsSL -o "$DOWNLOAD_FILE" "$DOWNLOAD_URL"
+echo -e "Downloading files from: $DOWNLOAD_URL"
 
-echo -e "${CYAN}> Extracting files...${RESET}"
-unzip -oq "$DOWNLOAD_FILE"
+curl -L -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.$RANDVERSION.212 Safari/537.36" -H "Accept-Language: en" -o $DOWNLOAD_FILE $DOWNLOAD_URL
 
-echo -e "${CYAN}> Cleaning up...${RESET}"
-rm -f "$DOWNLOAD_FILE"
+echo -e "Unpacking server files"
+unzip -o $DOWNLOAD_FILE
 
-# ===== RESTORE CONFIG =====
-echo -e "${CYAN}> Restoring config files...${RESET}"
-cp -f server.properties.bak server.properties 2>/dev/null || true
-cp -f permissions.json.bak permissions.json 2>/dev/null || true
-cp -f whitelist.json.bak whitelist.json 2>/dev/null || true
+echo -e "Cleaning up after installing"
+rm $DOWNLOAD_FILE
+
+echo -e "restoring backup config files - on first install there will be file not found errors which you can ignore."
+cp -rf server.properties.bak server.properties
+cp -rf permissions.json.bak permissions.json
+cp -rf whitelist.json.bak whitelist.json
 
 chmod +x bedrock_server
 
-echo -e "${GREEN}> Bedrock Server installation completed!${RESET}"
+echo -e "Install Completed"
 
-# ===== PLAYIT.GG =====
-echo ""
-echo -e "${CYAN}> Installing Playit.gg...${RESET}"
+echo "> Installing Playit.gg..."
 cd ..
 
-curl -fsSL https://playit-cloud.github.io/ppa/key.gpg \
-    | gpg --dearmor \
-    | sudo tee /etc/apt/trusted.gpg.d/playit.gpg >/dev/null
+curl -SsL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/playit.gpg >/dev/null
+echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.github.io/ppa/data ./" | sudo tee /etc/apt/sources.list.d/playit-cloud.list
+sudo apt update
+sudo apt install playit
 
-echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.github.io/ppa/data ./" \
-    | sudo tee /etc/apt/sources.list.d/playit-cloud.list >/dev/null
-
-sudo apt update -qq
-sudo apt install -y -qq playit
-
-# ===== DONE =====
+echo "> Playit.gg Installation Completed!"
 echo ""
-echo -e "${GREEN}✔ Installation completed successfully!${RESET}"
-echo -e "${CYAN}Use ./start to run the server${RESET}"
-echo ""
+echo "> You can start the server by do ./start"

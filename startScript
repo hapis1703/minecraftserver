@@ -24,8 +24,9 @@ if ! command -v playit &>/dev/null; then
     sudo apt install -y -qq playit
 fi
 
-# ===== EULA =====
-[[ -f eula.txt ]] || echo "eula=true" > eula.txt
+if [[ ! -f eula.txt ]]; then
+    echo "eula=true" > eula.txt
+fi
 
 # ===== SERVER =====
 if [[ -f bedrock_server ]]; then
@@ -36,13 +37,11 @@ else
     java -Xms${MEM_GB}G -Xmx${MEM_GB}G -jar server.jar nogui
 fi
 
-# ===== GEYSER =====
 if [[ -f geyser/geyser.jar ]]; then
     (cd geyser && screen -S geyser -d -m \
     java -Xms${MEM_GB}G -Xmx${MEM_GB}G -jar geyser.jar nogui)
 fi
 
-# ===== PLAYIT =====
 screen -S playit -d -m playit
 
 # ===== AFK =====

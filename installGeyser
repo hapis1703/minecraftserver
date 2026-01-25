@@ -1,56 +1,25 @@
-#!/bin/bash
+sudo apt update
+cd server
 
-set -e
-export DEBIAN_FRONTEND=noninteractive
+echo "> What Geyser type do you want to install?"
+echo "[1] for Standalone"
+echo "[2] for Plugins (Only Works with Paper or Spigot)"
+GEYSER_TYPE=1
+read GEYSER_TYPE
 
-# ===== COLORS =====
-GREEN="\e[32m"
-CYAN="\e[36m"
-YELLOW="\e[33m"
-RED="\e[31m"
-RESET="\e[0m"
-
-clear
-echo -e "${CYAN}"
-echo "======================================"
-echo "        GeyserMC Installer"
-echo "======================================"
-echo -e "${RESET}"
-
-# ===== UPDATE SYSTEM =====
-echo -e "${CYAN}> Updating system...${RESET}"
-sudo apt update -qq
-
-cd server || {
-    echo -e "${RED}> Server directory not found!${RESET}"
-    exit 1
-}
-
-# ===== GEYSER TYPE =====
-echo ""
-echo -e "${YELLOW}[1] Geyser Standalone"
-echo "[2] Geyser Plugin (Paper / Spigot only)${RESET}"
-echo ""
-
-read -rp "Select Geyser Type [1-2]: " GEYSER_TYPE
-
-# ===== INSTALL =====
-if [[ "$GEYSER_TYPE" == "2" ]]; then
-    echo -e "${GREEN}> Installing Geyser Plugin...${RESET}"
+if [[ $GEYSER_TYPE == 2 ]]; then
+    echo "> Installing Geyser Plugins"
     mkdir -p plugins
-    wget -q \
-        https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/spigot \
-        -O plugins/geyser.jar
-else
-    echo -e "${GREEN}> Installing Geyser Standalone...${RESET}"
+    cd plugins
+    wget -q https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/spigot -O geyser.jar
+    cd ..
+else 
+    echo "> Installing Geyser Standalone Version"
     mkdir -p geyser
-    wget -q \
-        https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/standalone \
-        -O geyser/geyser.jar
+    cd geyser
+    wget -q https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/standalone -O geyser.jar
+    cd ..
 fi
 
-# ===== DONE =====
-echo ""
-echo -e "${GREEN}✔ Geyser installed successfully!${RESET}"
-echo -e "${CYAN}Restart your server to apply changes${RESET}"
-echo ""
+echo "Geyser Installed.."
+cd ..

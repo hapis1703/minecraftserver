@@ -1,82 +1,51 @@
-#!/bin/bash
+export THIS_DIR=$PWD
 
-set -e
-export DEBIAN_FRONTEND=noninteractive
-export THIS_DIR="$PWD"
-
-# ===== COLORS =====
-GREEN="\e[32m"
-CYAN="\e[36m"
-YELLOW="\e[33m"
-RED="\e[31m"
-RESET="\e[0m"
-
-clear
-echo -e "${CYAN}"
-echo "======================================"
-echo "   Minecraft Java Server Installer"
-echo "======================================"
-echo -e "${RESET}"
-
-# ===== FUNCTION =====
 install_server () {
-    local choice="$1"
+    choice=$1
+    if [[ -z $choice ]]
+    then
+        echo "> Invalid Response"
+        ./installJava
+    
+    elif [[ $choice == 1 ]]
+    then
+        echo "> Installing Vanilla..."
+        bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/Java/vanilla)
 
-    case "$choice" in
-        1)
-            echo -e "${GREEN}> Installing Vanilla Server...${RESET}"
-            bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/Java/vanilla)
-            ;;
-        2)
-            echo -e "${GREEN}> Installing Paper Server...${RESET}"
-            bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/Java/paper)
-            ;;
-        *)
-            echo -e "${RED}> Invalid response. Restarting...${RESET}"
-            bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/installJava)
-            exit 1
-            ;;
-    esac
+    elif [[ $choice == 2 ]]
+    then
+        echo "> Installing Paper..."
+        bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/Java/paper)
+
+    else
+        echo "> Invalid Response"
+        bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/installJava)
+    fi
 }
 
-# ===== SYSTEM UPDATE =====
-echo -e "${CYAN}> Updating system...${RESET}"
-sudo apt update -qq
-sudo apt upgrade -y -qq
+sudo apt update
+sudo apt install -y -qq screen neofetch
 
-echo -e "${CYAN}> Installing dependencies...${RESET}"
-sudo apt install -y -qq screen neofetch curl gnupg
-
-# ===== SERVER TYPE =====
 echo ""
-echo -e "${YELLOW}(Using mcutils.com API – limited versions available)${RESET}"
+echo "(IMPORTANT!: We are using mcutils.com API, so the avaible version is not many)"
+echo "-- Pick the following Server type: --"
+echo "[1] Vanilla Server"
+echo "[2] Paper Server"
 echo ""
-echo -e "${YELLOW}[1] Vanilla Server"
-echo "[2] Paper Server${RESET}"
-echo ""
+echo "Type [1-2] Below"
+SERVER_TYPE=1
+read SERVER_TYPE
 
-read -rp "Select Server Type [1-2]: " SERVER_TYPE
+install_server $SERVER_TYPE
 
-install_server "$SERVER_TYPE"
-
-# ===== PLAYIT.GG =====
-echo ""
-echo -e "${CYAN}> Installing Playit.gg...${RESET}"
-
+echo "> Installing Playit.gg..."
 cd ..
 
-curl -fsSL https://playit-cloud.github.io/ppa/key.gpg \
-    | gpg --dearmor \
-    | sudo tee /etc/apt/trusted.gpg.d/playit.gpg >/dev/null
+curl -SsL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/playit.gpg
+echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.github.io/ppa/data ./" | sudo tee /etc/apt/sources.list.d/playit-cloud.list
+sudo apt update
+sudo apt install playit
 
-echo "deb [signed-by=/etc/apt/trusted.gpg.d/playit.gpg] https://playit-cloud.github.io/ppa/data ./" \
-    | sudo tee /etc/apt/sources.list.d/playit-cloud.list >/dev/null
-
-sudo apt update -qq
-sudo apt install -y -qq playit
-
-# ===== DONE =====
+echo "> Playit.gg Installation Completed!"
 echo ""
-echo -e "${GREEN}✔ Installation completed successfully!${RESET}"
-echo -e "${CYAN}Run ./start to launch the server${RESET}"
-echo ""
+echo "> You can start the server by do ./start"
