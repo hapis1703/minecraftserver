@@ -9,6 +9,12 @@ RESET="\e[0m"
 
 MEM_GB=$(awk '/MemTotal/ {printf "%.0f", $2/1024/1024}' /proc/meminfo)
 
+# ===== DEPENDENCIES =====
+if ! command -v screen &>/dev/null; then
+    sudo apt update -qq
+    sudo apt install -y -qq screen
+fi
+
 # ===== PLAYIT =====
 if ! command -v playit &>/dev/null; then
     curl -fsSL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/playit.gpg >/dev/null
