@@ -15,7 +15,6 @@ echo "   Bedrock Dedicated Server Installer"
 echo -e "======================================${RESET}"
 
 # ===== DEPENDENCIES =====
-sudo apt update -qq >/dev/null
 sudo apt install -y -qq curl wget unzip grep sed >/dev/null
 
 mkdir -p server
@@ -69,9 +68,9 @@ for f in server.properties permissions.json whitelist.json; do
 done
 
 # ===== DOWNLOAD & EXTRACT =====
-wget "$DOWNLOAD_URL"
+wget -q "$DOWNLOAD_URL" -O "$FILE_NAME"
 unzip -oq "$FILE_NAME"
-rm -f "$FILE_NAME"
+rm "$FILE_NAME"
 
 # ===== RESTORE CONFIG =====
 for f in server.properties permissions.json whitelist.json; do

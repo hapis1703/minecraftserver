@@ -25,17 +25,16 @@ sudo apt update -qq
 sudo apt upgrade -y -qq
 
 echo -e "${CYAN}> Installing dependencies...${RESET}"
-sudo apt install -y -qq curl wget dos2unix python3-pip screen ttyd
-
-# ===== SDKMAN & JAVA =====
-echo -e "${CYAN}> Installing SDKMAN & Java 21...${RESET}"
-curl -s https://get.sdkman.io | bash >/dev/null
-source "$HOME/.sdkman/bin/sdkman-init.sh"
-sdk install java 21.0.2-open >/dev/null
-sdk default java 21.0.2-open >/dev/null
+sudo apt install -y -qq curl wget dos2unix python3-pip screen
 
 # ===== SERVER INSTALL =====
 if [[ "$SERVER_TYPE" == "1" ]]; then
+    echo -e "${CYAN}> Installing SDKMAN & Java 21...${RESET}"
+    curl -s https://get.sdkman.io | bash >/dev/null
+    source "$HOME/.sdkman/bin/sdkman-init.sh"
+    sdk install java 21.0.2-open >/dev/null
+    sdk default java 21.0.2-open >/dev/null
+
     bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/installJava)
 
     read -rp "Install Geyser (Cross-play)? [Y/n]: " GEYSER
