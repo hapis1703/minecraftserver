@@ -1,77 +1,86 @@
 #!/bin/bash
 set -e
+export DEBIAN_FRONTEND=noninteractive
 
-sudo apt update -qq >/dev/null 2>&1
-sudo apt install -y -qq screen wget unzip curl >/dev/null 2>&1
+# ===== COLORS =====
+GREEN="\e[32m"
+CYAN="\e[36m"
+YELLOW="\e[33m"
+RED="\e[31m"
+RESET="\e[0m"
+
+clear
+echo -e "${CYAN}======================================"
+echo "   Bedrock Dedicated Server Installer"
+echo -e "======================================${RESET}"
+
+# ===== DEPENDENCIES =====
+sudo apt update -qq >/dev/null
+sudo apt install -y -qq curl wget unzip grep sed >/dev/null
 
 mkdir -p server
 cd server
 
-echo ""
-echo "======================================"
-echo "   Bedrock Dedicated Server Installer"
-echo "======================================"
-echo ""
-
 # ===== FETCH VERSION LIST =====
-echo "> Fetching available Bedrock versions..."
+echo -e "${CYAN}> Fetching Bedrock server versions...${RESET}"
 
 curl -s https://minecraft.wiki/w/Bedrock_Dedicated_Server \
-| grep -o 'https://www.minecraft.net/bedrockdedicatedserver/bin-linux/bedrock-server-[0-9\.]*\.zip' \
-| grep -v -i preview \
+| grep -o 'https://www.minecraft.net/bedrockdedicatedserver/bin-linux/bedrock-server-[^"]*\.zip' \
 | sort -Vr \
 | uniq > versions.txt
 
-TOTAL=$(wc -l < versions.txt)
-
-if [[ "$TOTAL" -eq 0 ]]; then
-    echo "❌ Failed to fetch versions"
+if [[ ! -s versions.txt ]]; then
+    echo -e "${RED}> Failed to fetch version list${RESET}"
     exit 1
 fi
 
+mapfile -t VERSIONS < versions.txt
+TOTAL=${#VERSIONS[@]}
+
+# ===== SHOW MENU =====
 echo ""
-echo "Available Versions:"
-echo "-------------------"
-
-nl -w2 -s". " versions.txt | sed 's#.*/bedrock-server-##' | sed 's/.zip//'
-
+echo -e "${YELLOW}Available Versions:${RESET}"
 echo ""
-read -rp "Select version [1-$TOTAL]: " CHOICE
 
-if ! [[ "$CHOICE" =~ ^[0-9]+$ ]] || (( CHOICE < 1 || CHOICE > TOTAL )); then
-    echo "❌ Invalid selection"
-    exit 1
-fi
-
-DOWNLOAD_URL=$(sed -n "${CHOICE}p" versions.txt)
-DOWNLOAD_FILE=$(basename "$DOWNLOAD_URL")
-
-echo ""
-echo "> Selected version: ${DOWNLOAD_FILE%.zip}"
-echo "> Downloading server..."
-
-# ===== BACKUP CONFIGS =====
-for f in server.properties permissions.json whitelist.json; do
-    [[ -f "$f" ]] && cp "$f" "$f.bak"
+for i in "${!VERSIONS[@]}"; do
+    VERSION=$(echo "${VERSIONS[$i]}" | sed -E 's/.*bedrock-server-(.*)\.zip/\1/')
+    printf " [%02d] %s\n" "$((i+1))" "$VERSION"
 done
 
-# ===== DOWNLOAD & INSTALL =====
-wget -q "$DOWNLOAD_URL" -O "$DOWNLOAD_FILE"
+echo ""
+read -rp "Select version [1-${TOTAL}]: " CHOICE
 
-echo "> Extracting..."
-unzip -oq "$DOWNLOAD_FILE"
-rm "$DOWNLOAD_FILE"
+if ! [[ "$CHOICE" =~ ^[0-9]+$ ]] || (( CHOICE < 1 || CHOICE > TOTAL )); then
+    echo -e "${RED}> Invalid selection${RESET}"
+    exit 1
+fi
 
-# ===== RESTORE CONFIGS =====
+DOWNLOAD_URL="${VERSIONS[$((CHOICE-1))]}"
+VERSION_SELECTED=$(echo "$DOWNLOAD_URL" | sed -E 's/.*bedrock-server-(.*)\.zip/\1/')
+FILE_NAME="bedrock-server-${VERSION_SELECTED}.zip"
+
+echo ""
+echo -e "${GREEN}> Selected version: ${VERSION_SELECTED}${RESET}"
+echo -e "${CYAN}> Downloading server...${RESET}"
+
+# ===== BACKUP CONFIG =====
 for f in server.properties permissions.json whitelist.json; do
-    [[ -f "$f.bak" ]] && mv "$f.bak" "$f"
+    [[ -f $f ]] && cp "$f" "$f.bak"
+done
+
+# ===== DOWNLOAD & EXTRACT =====
+curl -sL "$DOWNLOAD_URL" -o "$FILE_NAME"
+unzip -oq "$FILE_NAME"
+rm -f "$FILE_NAME"
+
+# ===== RESTORE CONFIG =====
+for f in server.properties permissions.json whitelist.json; do
+    [[ -f $f.bak ]] && mv "$f.bak" "$f"
 done
 
 chmod +x bedrock_server
-rm -f versions.txt
 
 echo ""
-echo "✅ Bedrock Server Installed Successfully!"
-echo ""
-echo "> Run ./start to launch the server"
+echo -e "${GREEN}✔ Bedrock Server ${VERSION_SELECTED} installed successfully${RESET}"
+echo -e "${CYAN}> Run ./start to launch the server${RESET}"
 echo ""
