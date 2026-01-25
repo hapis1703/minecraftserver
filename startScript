@@ -68,3 +68,6 @@ echo " Geyser  → http://<VM-IP>:7682"
 echo " Playit  → http://<VM-IP>:7683"
 echo ""
 echo -e "${YELLOW}Stop server: ./stop${RESET}"
+
+# ===== CHECK =====
+bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/check)
