@@ -9,12 +9,6 @@ RESET="\e[0m"
 
 MEM_GB=$(awk '/MemTotal/ {printf "%.0f", $2/1024/1024}' /proc/meminfo)
 
-# ===== DEPENDENCIES =====
-if ! command -v ttyd &>/dev/null; then
-    sudo apt update -qq
-    sudo apt install -y -qq screen ttyd curl gnupg python3-pip
-fi
-
 # ===== PLAYIT =====
 if ! command -v playit &>/dev/null; then
     curl -fsSL https://playit-cloud.github.io/ppa/key.gpg | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/playit.gpg >/dev/null
@@ -47,25 +41,13 @@ screen -S playit -d -m playit
 # ===== AFK =====
 screen -S afk -d -m "$HOME/.local/bin/bpytop"
 
-# ===== WEB CONSOLE =====
-screen -S web-server -d -m \
-ttyd -p 7681 bash -c "while true; do screen -r server; sleep 1; done"
-
-if screen -list | grep -q geyser; then
-screen -S web-geyser -d -m \
-ttyd -p 7682 bash -c "while true; do screen -r geyser; sleep 1; done"
-fi
-
-screen -S web-playit -d -m \
-ttyd -p 7683 bash -c "while true; do screen -r playit; sleep 1; done"
-
 # ===== INFO =====
 echo -e "${GREEN}✔ Server started${RESET}"
 echo ""
 echo -e "${CYAN}Web Console:${RESET}"
-echo " Server  → http://<VM-IP>:7681"
-echo " Geyser  → http://<VM-IP>:7682"
-echo " Playit  → http://<VM-IP>:7683"
+echo " Server  → screen -r server"
+echo " Geyser  → screen -r geyser"
+echo " Playit  → screen -r playit"
 echo ""
 echo -e "${YELLOW}Stop server: ./stop${RESET}"
 
