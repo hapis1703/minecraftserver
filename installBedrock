@@ -20,7 +20,7 @@ RANDVERSION=$(echo $((1 + $RANDOM % 4000)))
 
 if [ -z "${BEDROCK_VERSION}" ] || [ "${BEDROCK_VERSION}" == "latest" ]; then
     echo -e "\n Downloading latest Bedrock server"
-    curl -L -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.$RANDVERSION.212 Safari/537.36" -H "Accept-Language: en" -H "Accept-Encoding: gzip, deflate" -o versions.html.gz https://www.minecraft.net/en-us/download/server/bedrock
+    curl -L https://minecraft.wiki/w/Bedrock_Dedicated_Server -H "Accept-Language: en" -H "Accept-Encoding: gzip, deflate" -o versions.html.gz https://minecraft.wiki/w/Bedrock_Dedicated_Server
     DOWNLOAD_URL=$(zgrep -o 'https://www.minecraft.net/bedrockdedicatedserver/bin-linux/[^"]*' versions.html.gz)
 else 
     echo -e "\n Downloading ${BEDROCK_VERSION} Bedrock server"
