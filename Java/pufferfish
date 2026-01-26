@@ -1,0 +1,73 @@
+#!/bin/bash
+
+set -e
+export DEBIAN_FRONTEND=noninteractive
+
+# ===== COLORS =====
+GREEN="\e[32m"
+CYAN="\e[36m"
+YELLOW="\e[33m"
+RED="\e[31m"
+RESET="\e[0m"
+
+# ===== DEPENDENCIES =====
+sudo apt update -qq
+sudo apt install -y -qq curl jq wget > /dev/null
+
+mkdir -p server
+cd server
+
+PROJECT="pufferfish"
+SERVER_JARFILE="server.jar"
+
+echo -e "${CYAN}> Fetching available Minecraft versions...${RESET}"
+MCUTILS_API=$(curl -s "https://mcutils.com/api/server-jars/${PROJECT}")
+
+TOTAL=$(echo "$MCUTILS_API" | jq length)
+
+if [[ "$TOTAL" -eq 0 ]]; then
+    echo -e "${RED}> No versions found from API${RESET}"
+    exit 1
+fi
+
+echo ""
+echo -e "${YELLOW}Available Minecraft Versions:${RESET}"
+
+# ===== PRINT MENU =====
+for i in $(seq 0 $((TOTAL - 1))); do
+    VERSION=$(echo "$MCUTILS_API" | jq -r ".[$i].version")
+    printf " [%d] %s\n" "$((i + 1))" "$VERSION"
+done
+
+echo ""
+read -rp "Select version [1-${TOTAL}] (default: 1): " SELECTED
+SELECTED=${SELECTED:-1}
+
+# ===== VALIDATE INPUT =====
+if ! [[ "$SELECTED" =~ ^[0-9]+$ ]] || (( SELECTED < 1 || SELECTED > TOTAL )); then
+    echo -e "${RED}> Invalid selection, using latest version.${RESET}"
+    SELECTED=1
+fi
+
+INDEX=$((SELECTED - 1))
+MINECRAFT_VERSION=$(echo "$MCUTILS_API" | jq -r ".[$INDEX].version")
+DOWNLOAD_URL=$(echo "$MCUTILS_API" | jq -r ".[$INDEX].url")/download
+
+JAR_NAME="${PROJECT}-${MINECRAFT_VERSION}.jar"
+
+echo ""
+echo -e "${GREEN}> Selected Version:${RESET}"
+echo -e " MC Version : ${MINECRAFT_VERSION}"
+echo -e " Build      : latest"
+echo -e " JAR Name   : ${JAR_NAME}"
+echo ""
+
+# ===== DOWNLOAD =====
+if [[ -f "$SERVER_JARFILE" ]]; then
+    mv "$SERVER_JARFILE" "${SERVER_JARFILE}.old"
+fi
+
+echo -e "${CYAN}> Downloading server jar...${RESET}"
+wget -q "$DOWNLOAD_URL" -O "$SERVER_JARFILE"
+
+echo -e "${GREEN}> Vanilla server installed successfully!${RESET}"

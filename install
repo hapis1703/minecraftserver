@@ -27,37 +27,74 @@ sudo apt upgrade -y -qq
 echo -e "${CYAN}> Installing dependencies...${RESET}"
 sudo apt install -y -qq curl wget dos2unix python3-pip screen
 
-# ===== SERVER INSTALL =====
+# ================= JAVA SERVER =================
 if [[ "$SERVER_TYPE" == "1" ]]; then
-    echo -e "${CYAN}> Installing SDKMAN & Java 21...${RESET}"
+    echo -e "${CYAN}> Installing SDKMAN...${RESET}"
     curl -s https://get.sdkman.io | bash >/dev/null
     source "$HOME/.sdkman/bin/sdkman-init.sh"
-    sdk install java 21.0.2-open >/dev/null
-    sdk default java 21.0.2-open >/dev/null
 
+    echo ""
+    echo -e "${CYAN}Select Java Version:${RESET}"
+    echo ""
+    echo -e "${YELLOW}[1] JDK 21  ${RESET}- Minecraft 1.20.6+"
+    echo -e "${YELLOW}[2] JDK 17  ${RESET}- Minecraft 1.18 – 1.20.5"
+    echo -e "${YELLOW}[3] JDK 8   ${RESET}- Minecraft 1.16.5 & below"
+    echo ""
+
+    read -rp "Select JDK [1-3]: " JDK_CHOICE
+
+    case "$JDK_CHOICE" in
+        1)
+            JAVA_VERSION="21.0.2-open"
+            ;;
+        2)
+            JAVA_VERSION="17.0.18-tem"
+            ;;
+        3)
+            JAVA_VERSION="8.0.472-tem"
+            ;;
+        *)
+            echo -e "${RED}> Invalid choice, using JDK 21 (default)${RESET}"
+            JAVA_VERSION="21.0.2-open"
+            ;;
+    esac
+
+    echo -e "${CYAN}> Installing Java ${JAVA_VERSION}...${RESET}"
+    sdk install java "$JAVA_VERSION" >/dev/null
+    sdk default java "$JAVA_VERSION" >/dev/null
+
+    echo -e "${GREEN}> Java installed & set as default${RESET}"
+
+    echo ""
+    echo -e "${CYAN}> Installing Java Minecraft Server...${RESET}"
     bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/installJava)
 
+    echo ""
     read -rp "Install Geyser (Cross-play)? [Y/n]: " GEYSER
     GEYSER=${GEYSER:-Y}
     [[ "$GEYSER" =~ ^[Yy]$ ]] && \
-    bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/installGeyser)
+        bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/installGeyser)
 
+# ================= BEDROCK SERVER =================
 elif [[ "$SERVER_TYPE" == "2" ]]; then
     bash <(curl -s https://raw.githubusercontent.com/hapis1703/minecraftserver/main/installBedrock)
+
 else
     echo -e "${RED}> Invalid selection${RESET}"
     exit 1
 fi
 
-# ===== START / STOP =====
+# ================= START / STOP =================
 cd server
 wget -q https://github.com/hapis1703/minecraftserver/raw/main/start -O start
 wget -q https://github.com/hapis1703/minecraftserver/raw/main/stop -O stop
 chmod +x start stop
 dos2unix start stop >/dev/null
 
-# ===== AFK TOOL =====
+# ================= AFK TOOL =================
 pip3 install -q bpytop
 
-echo -e "${GREEN}✔ Installation completed${RESET}"
+echo ""
+echo -e "${GREEN}✔ Installation completed successfully${RESET}"
 echo -e "${CYAN}Use ./start to run the server${RESET}"
+echo ""
