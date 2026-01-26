@@ -1,25 +1,59 @@
-sudo apt update
-cd server
+#!/bin/bash
 
-echo "> What Geyser type do you want to install?"
-echo "[1] for Standalone"
-echo "[2] for Plugins (Only Works with Paper or Spigot)"
-GEYSER_TYPE=1
-read GEYSER_TYPE
+set -e
+export DEBIAN_FRONTEND=noninteractive
 
-if [[ $GEYSER_TYPE == 2 ]]; then
-    echo "> Installing Geyser Plugins"
+# ===== COLORS =====
+GREEN="\e[32m"
+CYAN="\e[36m"
+YELLOW="\e[33m"
+RED="\e[31m"
+RESET="\e[0m"
+
+clear
+
+echo -e "${CYAN}"
+echo "======================================"
+echo "        GeyserMC Installer"
+echo "======================================"
+echo -e "${RESET}"
+
+echo -e "${CYAN}> Updating system...${RESET}"
+sudo apt update -qq
+
+cd server || {
+    echo -e "${RED}> Server directory not found${RESET}"
+    exit 1
+}
+
+echo ""
+echo -e "${CYAN}Select Geyser installation type:${RESET}"
+echo ""
+echo -e "${YELLOW}[1] Standalone${RESET}  - Runs as separate service"
+echo -e "${YELLOW}[2] Plugin${RESET}     - Paper / Spigot only"
+echo ""
+
+read -rp "Enter choice [1-2]: " GEYSER_TYPE
+GEYSER_TYPE=${GEYSER_TYPE:-1}
+
+echo ""
+echo -e "${CYAN}> Installing Geyser...${RESET}"
+
+if [[ "$GEYSER_TYPE" == "2" ]]; then
+    echo -e "${GREEN}> Installing Geyser Plugin${RESET}"
     mkdir -p plugins
-    cd plugins
-    wget -q https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/spigot -O geyser.jar
-    cd ..
-else 
-    echo "> Installing Geyser Standalone Version"
+    wget -q \
+        https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/spigot \
+        -O plugins/geyser.jar
+else
+    echo -e "${GREEN}> Installing Geyser Standalone${RESET}"
     mkdir -p geyser
-    cd geyser
-    wget -q https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/standalone -O geyser.jar
-    cd ..
+    wget -q \
+        https://download.geysermc.org/v2/projects/geyser/versions/latest/builds/latest/downloads/standalone \
+        -O geyser/geyser.jar
 fi
 
-echo "Geyser Installed.."
-cd ..
+echo ""
+echo -e "${GREEN}✔ Geyser installation completed${RESET}"
+echo -e "${CYAN}Use ./start to launch Geyser${RESET}"
+echo ""
