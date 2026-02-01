@@ -33,6 +33,7 @@ if [[ -f bedrock_server ]]; then
     chmod +x bedrock_server
     screen -S server -d -m ./bedrock_server
 else
+    echo -e "${CYAN}> Installing SDKMAN...${RESET}"
     curl -s https://get.sdkman.io | bash >/dev/null
     source "$HOME/.sdkman/bin/sdkman-init.sh"
     echo ""
