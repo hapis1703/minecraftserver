@@ -58,6 +58,9 @@ else
             JAVA_VERSION="21.0.2-open"
             ;;
     esac
+    echo -e "${CYAN}> Installing Java ${JAVA_VERSION}...${RESET}"
+    sdk install java "$JAVA_VERSION"
+    sdk default java "$JAVA_VERSION"
     screen -S server -d -m \
     java -Xms${MEM_GB}G -Xmx${MEM_GB}G -jar server.jar nogui
 fi
